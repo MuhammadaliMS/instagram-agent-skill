@@ -1,7 +1,8 @@
 # The Instagram agent skill
 
-Thirteen Claude skills that run an Instagram account. Free, MIT, no signup, no
-API key, nothing to connect.
+Sixteen Claude skills that run an Instagram account. Free, MIT, no signup, no
+API key, nothing to connect, unless you want your own metrics pulled in or
+posts published, and then it is your own Meta app on the official API.
 
 One of them writes your Reels off 26 hook formulas and scores the hook before
 you waste a take on it. One goes and finds the reels that are actually working
@@ -15,7 +16,23 @@ the em dashes, the slop vocabulary and the invisible watermark characters out
 of a draft, then scores what is left against a five-check panel before you ever
 see it.
 
-**Nothing gets posted until you say yes.** These skills write. You post.
+**Nothing gets posted until you say yes.** These skills write. You post, or,
+if you switch it on, `/ig-publish` posts through Meta's official API after you
+approve the exact preview.
+
+## What this fork adds
+
+| | |
+| --- | --- |
+| **`/ig-watch`** | Reads the rendered video, not the script. Decodes every frame and measures motion at frame one, cuts, the longest still stretch, on-screen text under the Instagram interface (tesseract), captions against the voice's word timings, the script against the take, the loop, loudness and dead air, plus the upload spec. Optional Gemini watch-and-listen pass, reported as agree/disagree against the measurements. |
+| **`beats.py --timeline / --words`** | The beat sheet as edit data: beats, on-screen cards (`line \|\| CARD`) and estimated word timings in the same `{text,start,end}` shape as `hyperframes transcribe`, so a code-built video can be laid out before the voice exists. |
+| **`insights.py`** | Pulls your own post metrics read-only from the official Instagram API (views, reach, saves, shares, reposts, watch time, skip rate) and ranks them by outlier multiple and sends per reach. |
+| **`calibrate.py`** | Re-weights the five hook checks on your own reels, with shrinkage and leave-one-out AUC, and only saves weights that beat equal weights. `hookscore.py` picks them up. |
+| **`/ig-publish`** | Optional posting through the Content Publishing API: `check` (exact preview + confirm code) → `stage` (private upload) → `publish` (only with the code, only if nothing changed). Off unless you set `IG_WRITE=1`. |
+| **`keyword_dm.py`** | "Comment CRICKET" delivery through the official Private Replies API: one reply per commenter, 7-day window, no double sends, same write gate. |
+| **`ig-core/platform.json`** | Every platform number (caption limit, hashtag cap, safe zone, API version and metric names, quotas) in one file with the date each was checked. `igcore.py stale` lists the old ones. |
+| **Humanizer** | Flags what it cannot fix safely instead of forcing it: em dashes joining two sentences, literal words (unlock a phone, a dog harness, a real hack), quotes, names, fragment-making deletions. Repairs "a"/"an" after a swap. `--force` for the old behaviour. |
+| **Tests** | `python3 -m unittest discover -s tests`: 60 tests, a fake Graph API, a synthetic video with known answers. No network. |
 
 ## Install
 
@@ -52,7 +69,7 @@ reels and say "write my voice.md from these". Every skill reads that file. It
 matters more here than on other platforms, because you have to say the words
 out loud.
 
-## The thirteen
+## The sixteen
 
 | command | what it does |
 | --- | --- |
@@ -68,7 +85,10 @@ out loud.
 | `/ig-reply` | The thread under your own post. Sorts into keyword / lead / substance / question / support / noise, then writes in that order. |
 | `/ig-dm` | The keyword delivery, the first message, the collab pitch, and the two follow-ups. Two. |
 | `/ig-repurpose` | One video, podcast or newsletter into a week of reels and carousels that each stand alone. |
-| `/ig-audit` | Post-mortem on what you already posted. Ranks by outlier multiple and sends per reach, not views. |
+| `/ig-audit` | Post-mortem on what you already posted. Ranks by outlier multiple and sends per reach, not views. Pulls your metrics from the official API and calibrates the hook scorer on your reels. |
+| `/ig-watch` | Checks the rendered video file before it goes up. Measurements first, Gemini second. |
+| `/ig-publish` | Posts through the official Content Publishing API behind a check → stage → publish gate. Off by default. |
+| `/ig-core` | The platform numbers and the one-time setup of your own Meta app for the API skills. |
 
 ## The five tools that actually run
 
@@ -269,15 +289,17 @@ on `yt-dlp`, but the method is four lines and is written out in
 
 ## The fine print, which is the honest part
 
-**These skills do not post to Instagram.** There is a real Content Publishing
-API for Professional accounts, and it needs a Meta developer app, a linked
-Page, a long-lived token and app review, which is not a thing a skill can hand
-you. Everything else people use to automate posting, commenting, following or
-DMing is browser automation or a third-party tool, and both violate
+**Posting is off unless you turn it on, and then it is the official API.**
+`/ig-publish` and `keyword_dm.py` use Meta's documented Content Publishing and
+Private Replies APIs with a token from your own Meta app, in development mode
+on your own Professional account (no App Review needed for that). They need
+`IG_WRITE=1`, set by you, and every post goes through a preview you approve
+with a confirm code tied to the exact file and caption. Everything else
+people use to automate posting, commenting, following or DMing is browser
+automation or a third-party tool, and both violate
 [Instagram's Terms of Use](https://help.instagram.com/581066165581870) and get
-accounts action-blocked. So every skill here ends the same way: a copy-ready
-block, and you post it. That is not a limitation bolted on afterwards, it is
-the design, and it is why the approval gate is real rather than a setting.
+accounts action-blocked. Nothing here does that. Without the API set up, every
+skill ends the way it always did: a copy-ready block, and you post it.
 
 The one exception is keyword auto-replies in DMs, which Instagram supports
 through its own tools and approved partners, and which only fire after somebody
@@ -307,8 +329,10 @@ your name. If a draft needs a number you have not given, it comes back with
 
 **Platform numbers go stale.** The hashtag cap moved from 30 to 5 in December
 2025 while this repo was being written, and the linter had the old number in it
-until the fact got checked. If something here contradicts what Instagram is
-doing when you read it, Instagram is right.
+until the fact got checked. They now all live in `skills/ig-core/platform.json`
+with the date each was checked; override any of them in
+`~/.claude/instagram/platform.json`. If something here contradicts what
+Instagram is doing when you read it, Instagram is right.
 
 ## Files
 
@@ -323,6 +347,14 @@ skills/ig-human/humanize.py        the three cleaning passes
 skills/ig-human/detect.py          the five-check panel
 skills/ig-viral/swipe.py           outlier ranking and formula classification
 skills/ig-profile/rubric.json      the 100-point profile score
+skills/ig-watch/watch.py           frame, text, caption-sync, loop and loudness checks on a video
+skills/ig-audit/insights.py        read-only metrics pull from the official API, ranked
+skills/ig-audit/calibrate.py       hook-check weights fitted to your own reels
+skills/ig-publish/publish.py       check -> stage -> publish, gated
+skills/ig-dm/keyword_dm.py         keyword comment -> one private reply, gated
+skills/ig-core/platform.json       every platform number, with when it was checked
+skills/ig-core/igcore.py           config loader, credentials, Graph API client
+tests/                             60 tests, no network
 templates/voice.md                 your voice profile. Fill this in first.
 ```
 

@@ -45,16 +45,39 @@ copy-paste, they are invisible in every editor, and they are the most
 mechanical thing in generated text. `humanize.py` deletes every one, including
 any remaining Unicode format character it does not have a name for.
 
-**2. Typography.** Em dash to comma, en dash to hyphen, curly quotes to
-straight, ellipsis to three dots, bullet character to hyphen. The em dash pass
-is the one that matters: it collapses the dash to a comma and then cleans up
-the double punctuation and orphaned periods that leaves behind.
+**2. Typography.** Curly quotes to straight, ellipsis to three dots, bullet
+character to hyphen, a number range ("5—10") to a hyphen. Em dashes are fixed
+where a comma is safe: a paired aside ("the plan — the real one — worked"
+becomes commas) and a dash before a short tail. A dash that joins two full
+sentences is **left in place and listed**, because a comma there is a comma
+splice, which reads worse than the dash did.
 
 **3. The slop lexicon.** delve, leverage, robust, seamless, crucial, testament
 to, "in today's fast-paced world", plus the Instagram block: "stop scrolling",
 "in today's video", "follow for more", "tag someone who needs this", "the
 algorithm loves", "run don't walk". Each swapped for a plain word or deleted,
-with capitalisation preserved and URLs left untouched.
+with capitalisation preserved and URLs, #hashtags and @handles left untouched.
+Two things a swap can break get put back automatically: "a"/"an" in front of
+the new word ("an innovative tool" becomes "a new tool", not "an new tool"),
+and a word the swap doubled.
+
+## What it leaves as written, and lists
+
+A swap that would change the meaning or break the sentence is not made. It
+comes back under **LEFT AS WRITTEN** with the reason and a suggestion:
+
+- **Words with a literal meaning.** Entries marked `"mode": "flag"` in
+  `slop.json`: unlock (a phone), harness (a dog's), hack (an actual hack),
+  foster (care), amplify (audio), landscape, journey, stunning and others.
+  "Unlock your phone" must not become "get your phone".
+- **Quoted words.** Inside quotation marks it is somebody's actual words.
+- **Capitalised mid-sentence.** Probably a name: Arsenal, Journey, a product.
+- **Deletions that leave a fragment.** "Notably fine." does not become "Fine."
+  on its own.
+- **Em dashes joining two sentences**, as above.
+
+Rewrite each one by hand, or decide it is fine as it is. `--force` restores
+the old replace-everything behaviour for anyone who wants it.
 
 ## What does NOT get fixed automatically
 

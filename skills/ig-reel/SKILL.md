@@ -75,6 +75,26 @@ rehearse.
 a hook past 3 seconds, any beat over 4 seconds, a run of beats with nothing
 concrete in them, no loop. Re-run until it is clean.
 
+Put each on-screen card on its beat's line after ` || ` so the timing and the
+cards stay together:
+
+```
+Proposals used to take me five hours. || 5 HOURS -> 20 MIN
+```
+
+If the user builds the video in code (HyperFrames, Remotion, a render
+script), also write the edit data:
+
+```bash
+python3 beats.py script.txt --timeline beats.json   # beats, cards, estimated word timings
+python3 beats.py script.txt --words vo/words.json   # word timings only
+```
+
+The word timings use the same `{text, start, end, id}` shape as `hyperframes
+transcribe`, so captions and cuts can be laid out before the voice is
+recorded, then replaced by the real take's timings without changing the
+composition.
+
 **5. Humanize it.** Run the script through `/ig-human` before showing it. A
 written-sounding line is obvious the moment someone says it out loud.
 
@@ -93,8 +113,17 @@ Reply "yes" to log it, or tell me what to change.
 ```
 
 **7. Never publish.** This skill produces a script. The user shoots it and
-posts it. On "yes", append to `~/.claude/instagram/log.md` with the date, the
-hook formula used and the first line, so `/ig-audit` has a history later.
+posts it. On "yes", append one line to `~/.claude/instagram/log.md` in exactly
+this shape, so `/ig-audit` can match it to the post later:
+
+```
+- 2026-10-31 | #5 Time Collapse | Proposals used to take me five hours.
+```
+
+**8. After the render.** When the video exists, run `/ig-watch` on the file
+before the caption and before anyone posts it. It measures what this skill
+can only advise: motion at frame one, shot length, text under the interface,
+captions against the voice, the loop.
 
 ## On-screen text is a separate script
 

@@ -23,13 +23,26 @@ Usage
 
 import argparse
 import json
+import os
 import re
 import sys
 import textwrap
 
-LIMIT = 2200             # Instagram's hard caption limit.
-TRUNCATE = 125           # Roughly where the feed cuts to "... more".
-HASHTAG_LIMIT = 5        # Instagram's cap per post or reel since 18 Dec 2025,
+
+def _platform(path, default):
+    """Numbers live in ../ig-core/platform.json. If this skill was copied on
+    its own, the defaults below are the same numbers."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ig-core"))
+        from igcore import number
+        return number(path, default)
+    except ImportError:
+        return default
+
+
+LIMIT = _platform("caption.limit", 2200)                 # Instagram's hard caption limit.
+TRUNCATE = _platform("caption.truncate", 125)            # Roughly where the feed cuts to "... more".
+HASHTAG_LIMIT = _platform("caption.hashtag_limit", 5)    # Instagram's cap per post or reel since 18 Dec 2025,
                          # down from 30. Announced by the @Creators account:
                          # "using fewer (up to 5) more targeted hashtags,
                          # rather than many generic ones, can improve both your

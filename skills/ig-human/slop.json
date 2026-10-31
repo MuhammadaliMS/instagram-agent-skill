@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "note": "Lexicon used by humanize.py and detect.py. Replacements are plain-English and keep the sentence grammatical. The last block of each list is Instagram-specific: caption and voiceover slop that does not show up on other platforms. Edit freely - it is meant to be yours.",
+  "note": "Lexicon used by humanize.py and detect.py. Replacements are plain-English and keep the sentence grammatical. The last block of each list is Instagram-specific: caption and voiceover slop that does not show up on other platforms. Edit freely - it is meant to be yours. Entries with \"mode\": \"flag\" are never auto-replaced: they have literal meanings (a dog harness, unlocking a phone, a real hack) where the swap would change what the sentence says, so humanize.py lists them for a rewrite instead.",
   "invisible": [
     {
       "cp": "U+200B",
@@ -194,7 +194,9 @@
     {
       "find": "harness",
       "replace": "use",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "a dog or climbing harness"
     },
     {
       "find": "embark on",
@@ -204,7 +206,9 @@
     {
       "find": "foster",
       "replace": "build",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "foster care, fostering animals"
     },
     {
       "find": "facilitate",
@@ -214,17 +218,23 @@
     {
       "find": "showcase",
       "replace": "show",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "the noun, 'a showcase'"
     },
     {
       "find": "unlock",
       "replace": "get",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "unlocking a phone, a door, a level"
     },
     {
       "find": "elevate",
       "replace": "improve",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "literal height"
     },
     {
       "find": "streamline",
@@ -249,22 +259,30 @@
     {
       "find": "cultivate",
       "replace": "build",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "growing plants"
     },
     {
       "find": "amplify",
       "replace": "boost",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "audio"
     },
     {
       "find": "curate",
       "replace": "pick",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "museums, galleries"
     },
     {
       "find": "curated",
       "replace": "picked",
-      "family": "verbs"
+      "family": "verbs",
+      "mode": "flag",
+      "literal": "museums, galleries"
     },
     {
       "find": "empower",
@@ -309,7 +327,9 @@
     {
       "find": "vital",
       "replace": "important",
-      "family": "adjectives"
+      "family": "adjectives",
+      "mode": "flag",
+      "literal": "vital signs"
     },
     {
       "find": "comprehensive",
@@ -389,12 +409,14 @@
     {
       "find": "profound",
       "replace": "big",
-      "family": "adjectives"
+      "family": "adjectives",
+      "mode": "flag"
     },
     {
       "find": "remarkable",
       "replace": "notable",
-      "family": "adjectives"
+      "family": "adjectives",
+      "mode": "flag"
     },
     {
       "find": "compelling",
@@ -409,17 +431,22 @@
     {
       "find": "realm",
       "replace": "world",
-      "family": "nouns"
+      "family": "nouns",
+      "mode": "flag"
     },
     {
       "find": "landscape",
       "replace": "market",
-      "family": "nouns"
+      "family": "nouns",
+      "mode": "flag",
+      "literal": "literal landscapes and scenery"
     },
     {
       "find": "journey",
       "replace": "process",
-      "family": "nouns"
+      "family": "nouns",
+      "mode": "flag",
+      "literal": "an actual trip"
     },
     {
       "find": "testament to",
@@ -434,7 +461,9 @@
     {
       "find": "beacon",
       "replace": "signal",
-      "family": "nouns"
+      "family": "nouns",
+      "mode": "flag",
+      "literal": "a literal beacon"
     },
     {
       "find": "paradigm",
@@ -449,7 +478,9 @@
     {
       "find": "ecosystem",
       "replace": "system",
-      "family": "nouns"
+      "family": "nouns",
+      "mode": "flag",
+      "literal": "biology, or a product's ecosystem by name"
     },
     {
       "find": "treasure trove",
@@ -469,7 +500,9 @@
     {
       "find": "arsenal",
       "replace": "set",
-      "family": "nouns"
+      "family": "nouns",
+      "mode": "flag",
+      "literal": "Arsenal the club, or a real arsenal"
     },
     {
       "find": "north star",
@@ -584,17 +617,23 @@
     {
       "find": "stunning",
       "replace": "good",
-      "family": "adjectives"
+      "family": "adjectives",
+      "mode": "flag",
+      "literal": "scenery or a photo, where 'good' is a downgrade"
     },
     {
       "find": "breathtaking",
       "replace": "striking",
-      "family": "adjectives"
+      "family": "adjectives",
+      "mode": "flag",
+      "literal": "scenery"
     },
     {
       "find": "iconic",
       "replace": "known",
-      "family": "adjectives"
+      "family": "adjectives",
+      "mode": "flag",
+      "literal": "a genuinely iconic thing"
     },
     {
       "find": "must-have",
@@ -629,7 +668,9 @@
     {
       "find": "hack",
       "replace": "trick",
-      "family": "nouns"
+      "family": "nouns",
+      "mode": "flag",
+      "literal": "actual hacking"
     }
   ],
   "phrases": [

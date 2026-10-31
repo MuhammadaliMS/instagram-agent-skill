@@ -1,0 +1,126 @@
+{
+  "version": "1.1",
+  "note": "Every platform number the pack depends on, in one place. Instagram moves these without notice, so each block says when it was last checked and where it came from. To change a number for yourself without editing the pack, put the same keys in ~/.claude/instagram/platform.json; that file is merged over this one. Run `python3 igcore.py stale` to list blocks that have not been re-checked in a while.",
+  "caption": {
+    "checked": "2025-12-18",
+    "source": "Caption limit: Instagram Help Center. Hashtag cap: @Creators announcement, 18 Dec 2025. Truncation: measured in the feed, it moves with font and device.",
+    "limit": 2200,
+    "truncate": 125,
+    "hashtag_limit": 5
+  },
+  "speech": {
+    "checked": "2026-10-31",
+    "source": "Editing conventions, not Instagram rules. Time yourself and change wpm.",
+    "wpm": 165,
+    "hook_window_s": 3.0,
+    "max_beat_s": 4.0,
+    "abstract_run": 3
+  },
+  "reel": {
+    "checked": "2026-10-31",
+    "source": "Safe zone: the overlay positions on a 1080x1920 Reel (caption, action rail, audio strip). Working length: pack guidance, not a rule.",
+    "width": 1080,
+    "height": 1920,
+    "safe_zone": {
+      "top": 230,
+      "bottom": 480,
+      "left": 0,
+      "right": 230
+    },
+    "working_length_s": [
+      15,
+      45
+    ],
+    "first_frame_window_s": 0.5,
+    "loudness_lufs": -14,
+    "true_peak_dbtp": -1.0
+  },
+  "carousel": {
+    "checked": "2026-10-31",
+    "source": "Pack guidance for the portrait slide size. API: up to 20 children, images by public JPEG URL only (4:5 to 1.91:1), video children by URL.",
+    "width": 1080,
+    "height": 1350,
+    "api_max_items": 20
+  },
+  "profile": {
+    "checked": "2026-10-31",
+    "source": "Instagram profile editor.",
+    "name_chars": 30,
+    "bio_chars": 150
+  },
+  "api": {
+    "checked": "2026-10-31",
+    "source": "Meta developer docs, Instagram API with Instagram Login, media insights reference (updated 2026-09-11). Deprecated since v22 / 21 Apr 2025: plays, impressions, clips_replays_count, ig_reels_aggregated_all_plays_count.",
+    "host": "graph.instagram.com",
+    "version": "v26.0",
+    "media_fields": "id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count",
+    "reel_metrics": [
+      "views",
+      "reach",
+      "saved",
+      "shares",
+      "likes",
+      "comments",
+      "total_interactions",
+      "reposts",
+      "ig_reels_avg_watch_time",
+      "reels_skip_rate",
+      "crossposted_views"
+    ],
+    "feed_metrics": [
+      "views",
+      "reach",
+      "saved",
+      "shares",
+      "likes",
+      "comments",
+      "total_interactions",
+      "reposts",
+      "profile_visits",
+      "follows"
+    ],
+    "watch_time_unit": "ms",
+    "media_fields_fallback": "id,caption,media_type,permalink,timestamp,like_count,comments_count",
+    "watch_time_unit_note": "Meta's page does not state the unit. Milliseconds is what the API has returned in practice; check one value against the app before trusting it.",
+    "insights_lag_hours": 48
+  },
+  "publishing": {
+    "checked": "2026-10-31",
+    "source": "Meta developer docs: Content Publishing and ig-user/media reference. Quota: content_publishing_limit config.quota_total (50; one guide section says 100, the live field says 50). Poll guidance: once a minute, up to 5 minutes. The scripts ask the API for the live quota; posts_per_24h is only the fallback.",
+    "posts_per_24h": 50,
+    "reel_min_s": 3,
+    "reel_max_s": 900,
+    "reel_max_mb": 300,
+    "fps": [
+      23,
+      60
+    ],
+    "video_codecs": [
+      "h264",
+      "hevc"
+    ],
+    "audio_codecs": [
+      "aac"
+    ],
+    "audio_max_hz": 48000,
+    "status_poll_s": 30,
+    "status_timeout_s": 600,
+    "containers": [
+      "mp4",
+      "mov"
+    ],
+    "max_width": 1920,
+    "max_video_mbps": 25,
+    "cover_max_mb": 8
+  },
+  "dm": {
+    "checked": "2026-10-31",
+    "source": "Meta developer docs: Private Replies (updated 2026-06-30) and messaging rate limits. One private reply per commenter, within 7 days of the comment; 750 private-reply calls per hour per account; text up to 1000 bytes.",
+    "private_reply_window_days": 7,
+    "private_replies_per_comment": 1,
+    "send_interval_s": 5.0,
+    "max_per_run": 50,
+    "message_max_bytes": 1000,
+    "rate_per_hour": 750
+  }
+}

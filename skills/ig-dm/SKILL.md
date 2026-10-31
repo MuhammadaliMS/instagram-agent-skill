@@ -69,6 +69,38 @@ through Instagram's own tools or an approved partner. Using that is fine.
 Sending unsolicited bulk DMs is not, and it is the fastest route to a
 restricted account.
 
+### Delivering it yourself, through the official API
+
+`keyword_dm.py` in this folder sends the delivery through Meta's Private
+Replies API with a token from the user's own Meta app (setup: `/ig-core`). It
+is the same mechanism the approved partners use: a person comments first, and
+the account sends **one** private reply to that comment, within 7 days.
+
+```bash
+python3 keyword_dm.py scan --media latest --keyword CRICKET          # who asked, sends nothing
+python3 keyword_dm.py send --media latest --keyword CRICKET \
+    --message delivery.txt --public-reply "Sent, check your DMs" --confirm
+python3 keyword_dm.py watch ... --every 10 --confirm                 # keep answering until Ctrl-C
+```
+
+The order is not optional:
+
+1. Write the delivery message with the template above, `{username}` where
+   their handle goes, run it through `/ig-human`, save it to a file.
+2. Run `scan`. Show the user the queue and the exact message it printed.
+3. Only after the user says yes to that queue and that message, run `send`
+   with `--confirm`. It also needs `IG_WRITE=1`, which the user sets, never you.
+4. `watch` keeps sending to new commenters until stopped. Offer it only when
+   the user asks for it, and say that it runs until they press Ctrl-C.
+
+What it does on its own: matches the keyword case- and emoji-insensitively
+("Cricket 🏏" counts, "crickets" does not unless `--loose`), skips the user's
+own comments, hidden comments and anything past the 7-day window, sends each
+person one delivery even if they comment twice, records every send in
+`~/.claude/instagram/dm_state.json` straight away so a crash never sends twice,
+and stops the whole run on any error that is not about one person (a missing
+permission, say), instead of marking the queue done.
+
 ## The first message to someone warm
 
 - **Two to four sentences.** A screen of text is a delete.
@@ -115,4 +147,5 @@ Then stop. A third converts nobody and costs the relationship.
 
 The message, the character count, and the two follow-ups with the day each
 goes out, all run through `/ig-human`. The user sends every one of them by
-hand, or through their own approved automation for keyword replies only.
+hand, or, for keyword replies only, through `keyword_dm.py` or their own
+approved automation.

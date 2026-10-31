@@ -32,9 +32,29 @@ Usage
 
 import argparse
 import json
+import os
 import re
 import statistics
 import sys
+
+
+def _platform(path, default):
+    """Numbers live in ../ig-core/platform.json. If this skill was copied on
+    its own, the defaults below are the same numbers."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ig-core"))
+        from igcore import number
+        return number(path, default)
+    except ImportError:
+        return default
+
+
+WPM = _platform("speech.wpm", 165)
+# Written by /ig-audit's calibrate.py from your own reels. If it is there, the
+# five checks are weighted by how well each one separated your hits from your
+# misses, instead of equally.
+WEIGHTS_FILE = os.path.join(os.path.expanduser(os.environ.get("IG_HOME", "~/.claude/instagram")),
+                            "hook_weights.json")
 
 WORD_RE = re.compile(r"[A-Za-z0-9$%'’-]+")
 NUMBER_RE = re.compile(
@@ -122,7 +142,7 @@ def check_length(text):
     """A hook has to land before the thumb moves. Roughly two seconds."""
     w = words(text)
     n = len(w)
-    secs = n / 2.75                      # ~165 words per minute, spoken
+    secs = n / (WPM / 60)                # spoken, at the pack's speaking rate
     chars = len(text.strip())
     if 5 <= n <= 12:
         score = 100.0
@@ -213,7 +233,20 @@ def check_address(text):
 CHECKS = ["LENGTH", "SPECIFICITY", "STAKES", "FRONTLOAD", "ADDRESS"]
 
 
-def run(text):
+def load_weights(path=WEIGHTS_FILE):
+    """Your calibrated weights, or None for the equal-weight default."""
+    if os.environ.get("IG_HOOK_WEIGHTS") == "off" or not os.path.exists(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as fh:
+            w = json.load(fh).get("weights", {})
+    except (OSError, ValueError):
+        return None
+    total = sum(max(0.0, w.get(c, 0.0)) for c in CHECKS)
+    return {c: max(0.0, w.get(c, 0.0)) / total for c in CHECKS} if total else None
+
+
+def run(text, weights=None):
     results = {
         "LENGTH": check_length(text),
         "SPECIFICITY": check_specificity(text),
@@ -225,9 +258,16 @@ def run(text):
     scores = [results[c][0] for c in CHECKS]
     # The weakest property caps the hook, same logic as detect.py: one bad
     # property is enough for the thumb to keep moving.
-    overall = statistics.mean(scores) * 0.6 + min(scores) * 0.4 - len(flags) * 15
+    if weights:
+        centre = sum(results[c][0] * weights[c] for c in CHECKS)
+        # A check your own data says measures nothing should not cap the hook.
+        floor = min(results[c][0] for c in CHECKS if weights[c] >= 0.05)
+    else:
+        centre = statistics.mean(scores)
+        floor = min(scores)
+    overall = centre * 0.6 + floor * 0.4 - len(flags) * 15
     overall = clamp(overall)
-    verdict = "STRONG" if overall >= 70 and min(scores) >= 55 and not flags else (
+    verdict = "STRONG" if overall >= 70 and floor >= 55 and not flags else (
         "OK" if overall >= 50 else "WEAK")
     return results, overall, verdict, flags
 
@@ -273,7 +313,10 @@ def main():
     ap.add_argument("input", nargs="?", default="-", help="file with one hook per line, or -")
     ap.add_argument("--hook", help="score a single hook given on the command line")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--default-weights", action="store_true",
+                    help="ignore your calibrated weights and score with equal weights")
     args = ap.parse_args()
+    weights = None if args.default_weights else load_weights()
 
     if args.hook:
         lines = [args.hook]
@@ -286,7 +329,7 @@ def main():
 
     payload = []
     for line in lines:
-        results, overall, verdict, flags = run(line)
+        results, overall, verdict, flags = run(line, weights)
         payload.append({
             "hook": line,
             "checks": {k: {"score": round(v[0], 1), "detail": v[1]} for k, v in results.items()},
@@ -301,10 +344,13 @@ def main():
         return
 
     if len(payload) == 1:
-        results, overall, verdict, flags = run(lines[0])
+        results, overall, verdict, flags = run(lines[0], weights)
         render_one(lines[0], results, overall, verdict, flags)
     else:
         render_table(sorted(payload, key=lambda r: -r["score"]))
+    if weights:
+        print("  Weighted by your own reels (" + WEIGHTS_FILE + "). "
+              "--default-weights to compare.\n")
 
     sys.exit(0 if max(p["score"] for p in payload) >= 70 else 1)
 

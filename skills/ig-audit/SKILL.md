@@ -27,6 +27,50 @@ Ask for whichever the user has:
 Also read `~/.claude/instagram/log.md` if it exists, since it records which
 hook formula each post used.
 
+### Or pull it, read-only, from the official API
+
+If the user has connected their own Meta app (`/ig-core`), skip the
+screenshots:
+
+```bash
+python3 insights.py pull                  # media + per-post insights -> ~/.claude/instagram/insights.json
+python3 insights.py report                # ranked by outlier multiple
+python3 insights.py report --by sends     # or by sends per reach, saves, watch time
+python3 insights.py tsv --out posts.tsv   # flat table for a spreadsheet
+```
+
+It fetches views, reach, saves, shares, likes, comments, reposts, average
+watch time and skip rate for reels; reach, saves, shares, profile visits and
+follows for feed posts. The metric names live in `ig-core/platform.json`
+because Meta renames them (`plays` and `impressions` were retired in 2025). If
+the API refuses one, the pull carries on without it and says which.
+
+The API does not give the hold-at-3-seconds number or the retention graph.
+Ask for that screenshot for the best and worst reel anyway; it still beats
+everything else on this page.
+
+Each row needs the hook that was **said**, not the caption. The report takes
+it from `~/.claude/instagram/hooks.tsv` (media id, a tab, the spoken hook),
+then from `log.md` lines `/ig-reel` wrote on the same day, and marks rows that
+fell back to the caption's first line.
+
+### Then calibrate the hook scorer on this account
+
+```bash
+python3 calibrate.py             # how well each hook check predicts this account's results
+python3 calibrate.py --write     # save the weights, only if they beat equal weights
+python3 calibrate.py --reset     # back to the default
+```
+
+`hookscore.py` weights its five checks equally, and on somebody else's corpus
+that barely beat a coin flip at telling a creator's hits from their misses.
+This re-weights the checks by how well each one ranked the user's own reels,
+pulls the weights toward equal when there are few reels, and reports
+leave-one-out AUC for both, so no reel ever grades itself. It refuses to save
+weights from under 15 reels or weights that do not beat equal. "Nothing in
+the hook text predicts your results" is a legitimate answer. Report it as
+the finding it is: the difference is in the video.
+
 ## What to actually measure
 
 Raw views is the least useful number on the page, because it is mostly a
